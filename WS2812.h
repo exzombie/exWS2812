@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Arduino.h"
-#include "FastPin.h"
 #include <util/atomic.h>
 #include <avr/cpufunc.h>
 #include "initializer_list.h"
@@ -134,7 +132,7 @@ const WS2812Color WS2812Color::white = 0xffffff;
  *  if you only have one LED.
  */
 
-template <byte numLeds, byte _pin>
+template <byte numLeds, byte pinPort, byte pinBit>
 class WS2812 {
 
 static_assert(F_CPU == 8000000 || F_CPU == 16000000,
@@ -146,8 +144,6 @@ public:
     using Color = WS2812Color;
 
     void begin() {
-        ledPin.low();
-        ledPin.output();
         for (byte i = 0; i < numBytes; ++i) {
             dataBytes[i] = 0;
         }
@@ -184,15 +180,23 @@ public:
     void commit() const;
 
 private:
-    static const FastPin<_pin> ledPin;
     Color data[numLeds];
     byte* dataBytes = reinterpret_cast<byte*>(data);
     static const byte numBytes = numLeds * sizeof(Color);
+
+    void togglePin() const __attribute__((always_inline));
 };
 
 
-template <byte numLeds, byte _pin>
-void WS2812<numLeds, _pin>::commit() const {
+
+template <byte numLeds, byte pinPort, byte pinBit>
+void WS2812<numLeds, pinPort, pinBit>::togglePin() const {
+    asm volatile("sbi %[port], %[bit] \n\t"
+        :: [port] "I" (pinPort), [bit] "I" (pinBit));
+}
+
+template <byte numLeds, byte pinPort, byte pinBit>
+void WS2812<numLeds, pinPort, pinBit>::commit() const {
 ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     for (byte N = 0; N < numBytes; ++N) {
         byte b = dataBytes[N];
@@ -200,29 +204,29 @@ ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
           if ((b & 0x80) == 0) {
             // Send a 0
             if (F_CPU == 16000000) {
-              ledPin.toggle();
+              togglePin();
               _NOP(); _NOP(); _NOP();
-              ledPin.toggle();
+              togglePin();
               _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
             } else if (F_CPU == 8000000) {
-              ledPin.toggle();
+              togglePin();
               _NOP();
-              ledPin.toggle();
+              togglePin();
               _NOP(); _NOP(); _NOP(); _NOP();
             }
           }
           else {
             // Send a 1
             if (F_CPU == 16000000) {
-              ledPin.toggle();
+              togglePin();
               _NOP(); _NOP(); _NOP();
               _NOP(); _NOP(); _NOP();
               _NOP(); _NOP(); _NOP();
-              ledPin.toggle();
+              togglePin();
             } else if (F_CPU == 8000000) {
-              ledPin.toggle();
+              togglePin();
               _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
-              ledPin.toggle();
+              togglePin();
             }
           }
           b = b+b;
