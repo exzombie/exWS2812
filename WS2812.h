@@ -201,35 +201,35 @@ ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     for (byte N = 0; N < numBytes; ++N) {
         byte b = dataBytes[N];
         for (byte i = 0; i < 8; ++i) {
-          if ((b & 0x80) == 0) {
-            // Send a 0
-            if (F_CPU == 16000000) {
-              togglePin();
-              _NOP(); _NOP(); _NOP();
-              togglePin();
-              _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
-            } else if (F_CPU == 8000000) {
-              togglePin();
-              _NOP();
-              togglePin();
-              _NOP(); _NOP(); _NOP(); _NOP();
+            if ((b & 0x80) == 0) {
+                // Send a 0
+                if (F_CPU == 16000000) {
+                    togglePin();
+                    _NOP(); _NOP(); _NOP();
+                    togglePin();
+                    _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
+                } else if (F_CPU == 8000000) {
+                    togglePin();
+                    _NOP();
+                    togglePin();
+                    _NOP(); _NOP(); _NOP(); _NOP();
+                }
             }
-          }
-          else {
-            // Send a 1
-            if (F_CPU == 16000000) {
-              togglePin();
-              _NOP(); _NOP(); _NOP();
-              _NOP(); _NOP(); _NOP();
-              _NOP(); _NOP(); _NOP();
-              togglePin();
-            } else if (F_CPU == 8000000) {
-              togglePin();
-              _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
-              togglePin();
+            else {
+                // Send a 1
+                if (F_CPU == 16000000) {
+                    togglePin();
+                    _NOP(); _NOP(); _NOP();
+                    _NOP(); _NOP(); _NOP();
+                    _NOP(); _NOP(); _NOP();
+                    togglePin();
+                } else if (F_CPU == 8000000) {
+                    togglePin();
+                    _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
+                    togglePin();
+                }
             }
-          }
-          b = b+b;
+            b = b+b;
         };
     }
 }
