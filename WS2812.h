@@ -200,8 +200,21 @@ void WS2812<numLeds, pinPort, pinBit>::commit() const {
 ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
     for (byte N = 0; N < numBytes; ++N) {
         byte b = dataBytes[N];
-        for (byte i = 0; i < 8; ++i) {
-            if ((b & 0x80) == 0) {
+        for (byte i = 0; i < 8; ++i, b <<= 1) {
+            if (b & _BV(7)) {
+                // Send a 1
+                if (F_CPU == 16000000) {
+                    togglePin();
+                    _NOP(); _NOP(); _NOP();
+                    _NOP(); _NOP(); _NOP();
+                    _NOP(); _NOP(); _NOP();
+                    togglePin();
+                } else if (F_CPU == 8000000) {
+                    togglePin();
+                    _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
+                    togglePin();
+                }
+            } else {
                 // Send a 0
                 if (F_CPU == 16000000) {
                     togglePin();
@@ -215,21 +228,6 @@ ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                     _NOP(); _NOP(); _NOP(); _NOP();
                 }
             }
-            else {
-                // Send a 1
-                if (F_CPU == 16000000) {
-                    togglePin();
-                    _NOP(); _NOP(); _NOP();
-                    _NOP(); _NOP(); _NOP();
-                    _NOP(); _NOP(); _NOP();
-                    togglePin();
-                } else if (F_CPU == 8000000) {
-                    togglePin();
-                    _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
-                    togglePin();
-                }
-            }
-            b = b+b;
         };
     }
 }
