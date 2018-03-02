@@ -4,6 +4,31 @@
 #include <avr/cpufunc.h>
 #include "initializer_list.h"
 
+#ifdef ARDUINO
+
+struct WS2812PortAndPin {
+    char port = -1;
+    char bit = -1;
+
+    WS2812PortAndPin(byte pinNumber) {
+        char portId = digitalPinToPort(pinNumber);
+        if (portId == NOT_A_PIN) {
+            return;
+        }
+        char theport = portInputRegister(portId) - __SFR_OFFSET;
+        byte bitmask = digitalPinToBitMask(pinNumber);
+        char i;
+        for (i = 0; !(bitmask & _BV(i)) && i < 8; ++i);
+        if (i == 8) {
+            return;
+        }
+        port = theport;
+        bit = i;
+    }
+};
+
+#endif
+
 /*
  * WS2812Color represents a color in RGB space. The three bytes for R, G and B
  * are in RGB order in the interface, but are stored in GRB order for efficient
