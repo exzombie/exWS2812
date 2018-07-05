@@ -132,14 +132,14 @@ const WS2812Color WS2812Color::white = 0xffffff;
 
 /*
  * WS2812 is a template class that handles storage and transmission of color
- * data for each LED. It requires one pin, 8MHz or 16Mhz CPU clock and suport
- * for the FastPin library. Instatiate the class with the number of WS2812 LEDs
- * and the pin number, then use begin() to enable the pin. Use setColor() to
- * pick a color for each LED and commit() to submit data to the LEDs. For
- * example, to pick random colors once per second with a strip of 5 LEDs
- * connected to pin 10:
+ * data for each LED. It requires one pin and 8MHz or 16Mhz CPU clock.
+ * Instatiate the class with the number of WS2812 LEDs, the port addres of ther
+ * pin and the bit number of the pin, then use begin() to enable the pin. Use
+ * setColor() to pick a color for each LED and commit() to submit data to the
+ * LEDs. For example, to pick random colors once per second with a strip of 5
+ * LEDs connected to pin 10 of ATTiny84, which is at port 0x16, bit 0:
  *
- *     WS2812<5, 10> ledStrip;
+ *     WS2812<5, 0x16, 0> ledStrip;
  *
  *     void setup() {
  *         ledStrip.begin();
