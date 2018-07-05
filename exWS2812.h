@@ -209,7 +209,7 @@ private:
     byte* dataBytes = reinterpret_cast<byte*>(data);
     static const byte numBytes = numLeds * sizeof(Color);
 
-    void togglePin() const __attribute__((always_inline));
+    inline void togglePin() const __attribute__((always_inline));
 };
 
 
